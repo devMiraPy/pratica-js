@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Exercício 08 — Sistema de estoque</title>
+<style>
+body{font-family:Arial, sans-serif;background:#f4f4f4;padding:40px;color:#333}
+main{background:#fff;max-width:500px;margin:auto;padding:30px 35px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+h1{font-size:20px}
+input{padding:9px;margin:6px 0;width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:6px;font-size:14px}
+button{padding:10px 18px;border:none;border-radius:6px;background:#2d6cdf;color:#fff;cursor:pointer;margin-top:10px}
+button:hover{background:#1f4fb0}
+#resultado{margin-top:15px;font-weight:bold;padding:10px;border-radius:6px}
+.disponivel{color:#1e8449;background:#eafaf0}
+.insuficiente{color:#c0392b;background:#fdecea}
+</style>
+</head>
+<body>
+<main>
+    <h1>Verificação de Estoque</h1>
+
+    <input type="text" id="produto" placeholder="Produto">
+    <input type="number" id="disponivel" placeholder="Quantidade disponível">
+    <input type="number" id="solicitada" placeholder="Quantidade solicitada">
+
+    <button id="btnVerificar">Verificar</button>
+
+    <p id="resultado"></p>
+</main>
+
+<script>
+    const produto = document.querySelector("#produto");
+    const disponivel = document.querySelector("#disponivel");
+    const solicitada = document.querySelector("#solicitada");
+    const botao = document.querySelector("#btnVerificar");
+    const resultado = document.querySelector("#resultado");
+
+    botao.addEventListener("click", function() {
+        const qtdDisponivel = Number(disponivel.value);
+        const qtdSolicitada = Number(solicitada.value);
+
+        if (qtdDisponivel >= qtdSolicitada) {
+            resultado.textContent = "Pedido disponível para separação.";
+            resultado.className = "disponivel";
+        } else {
+            resultado.textContent = "Estoque insuficiente.";
+            resultado.className = "insuficiente";
+        }
+    });
+</script>
+</body>
+</html>

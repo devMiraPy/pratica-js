@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Exercício 06 — Sistema de notas</title>
+<style>
+body{font-family:Arial, sans-serif;background:#f4f4f4;padding:40px;color:#333}
+main{background:#fff;max-width:500px;margin:auto;padding:30px 35px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+h1{font-size:20px}
+input{padding:9px;margin:6px 0;width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:6px;font-size:14px}
+button{padding:10px 18px;border:none;border-radius:6px;background:#2d6cdf;color:#fff;cursor:pointer;margin-top:10px}
+button:hover{background:#1f4fb0}
+#resultado{margin-top:15px;font-size:16px}
+.aprovado{color:#1e8449;font-weight:bold}
+.reprovado{color:#c0392b;font-weight:bold}
+</style>
+</head>
+<body>
+<main>
+    <h1>Cálculo de Média Escolar</h1>
+
+    <input type="number" id="nota1" placeholder="Nota 1" step="0.1">
+    <input type="number" id="nota2" placeholder="Nota 2" step="0.1">
+    <input type="number" id="nota3" placeholder="Nota 3" step="0.1">
+
+    <button id="btnCalcular">Calcular</button>
+
+    <p id="resultado"></p>
+</main>
+
+<script>
+    const nota1 = document.querySelector("#nota1");
+    const nota2 = document.querySelector("#nota2");
+    const nota3 = document.querySelector("#nota3");
+    const botao = document.querySelector("#btnCalcular");
+    const resultado = document.querySelector("#resultado");
+
+    botao.addEventListener("click", function() {
+        const n1 = Number(nota1.value);
+        const n2 = Number(nota2.value);
+        const n3 = Number(nota3.value);
+
+        const media = (n1 + n2 + n3) / 3;
+
+        let situacao = "";
+        let classe = "";
+
+        if (media >= 6) {
+            situacao = "Aprovado";
+            classe = "aprovado";
+        } else {
+            situacao = "Reprovado";
+            classe = "reprovado";
+        }
+
+        resultado.innerHTML = `Média: ${media.toFixed(1)} — <span class="${classe}">${situacao}</span>`;
+    });
+</script>
+</body>
+</html>

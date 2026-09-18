@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exercícios de DOM — SENAI</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+    --bg: #eef1fb;
+    --blob-pink: #f2b8dc;
+    --blob-yellow: #f6e28c;
+    --blob-blue: #b9d6f4;
+    --blob-green: #b7ecd3;
+    --ink: #2e2a4a;
+    --muted: #8d89a8;
+    --card-bg: rgba(255,255,255,0.74);
+    --card-border: rgba(255,255,255,0.9);
+    --shell-bg: rgba(255,255,255,0.55);
+    --accent: #7c4dbd;
+    --accent-2: #9b6bce;
+    --accent-ink: #ffffff;
+    --pill-bg: rgba(255,255,255,0.85);
+    --pill-ink: #4a4568;
+    --facil-ink: #1e8449; --facil-bg: #e3f7ea;
+    --media-ink: #b9740a; --media-bg: #fbf0da;
+    --dificil-ink: #c0392b; --dificil-bg: #fbe6e3;
+    --field-bg: #ffffff;
+    --field-border: #ddd7ee;
+    --shadow: 0 12px 30px rgba(90, 70, 140, 0.14);
+}
+:root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+        --bg: #17152a;
+        --ink: #eee9ff;
+        --muted: #a79fd1;
+        --card-bg: rgba(38,34,64,0.7);
+        --card-border: rgba(255,255,255,0.08);
+        --shell-bg: rgba(30,27,52,0.6);
+        --pill-bg: rgba(255,255,255,0.08);
+        --pill-ink: #eee9ff;
+        --field-bg: #221f3c;
+        --field-border: #3a3562;
+        --facil-bg: #17301f; --media-bg: #332918; --dificil-bg: #331d1a;
+        --shadow: 0 12px 30px rgba(0,0,0,0.4);
+    }
+}
+:root[data-theme="dark"]{
+    --bg: #17152a;
+    --ink: #eee9ff;
+    --muted: #a79fd1;
+    --card-bg: rgba(38,34,64,0.7);
+    --card-border: rgba(255,255,255,0.08);
+    --shell-bg: rgba(30,27,52,0.6);
+    --pill-bg: rgba(255,255,255,0.08);
+    --pill-ink: #eee9ff;
+    --field-bg: #221f3c;
+    --field-border: #3a3562;
+    --facil-bg: #17301f; --media-bg: #332918; --dificil-bg: #331d1a;
+    --shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Poppins', system-ui, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    overflow-x:hidden;
+}
+
+.blobs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
+.blob.b1{width:340px;height:340px;background:var(--blob-pink);top:-100px;left:-80px}
+.blob.b2{width:260px;height:260px;background:var(--blob-yellow);top:220px;left:180px}
+.blob.b3{width:280px;height:280px;background:var(--blob-pink);bottom:180px;right:260px}
+.blob.b4{width:260px;height:260px;background:var(--blob-blue);bottom:-60px;right:80px}
+.blob.b5{width:260px;height:260px;background:var(--blob-green);bottom:-100px;right:-60px}
+
+#app{position:relative;z-index:1;min-height:100vh;padding:56px 24px 80px}
+
+.screen{display:none;max-width:1080px;margin:0 auto;animation:fade .35s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+#home{text-align:center}
+#home h1{font-size:clamp(28px,4vw,40px);font-weight:800;margin:0 0 10px}
+#home .subtitle{color:var(--muted);font-size:16px;margin:0 0 40px}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+    text-align:left;
+}
+
+.card{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-radius:20px;
+    padding:22px 22px 20px;
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    font-family:inherit;
+    color:var(--ink);
+    text-align:left;
+    transition:transform .18s ease, box-shadow .18s ease;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    min-height:130px;
+}
+.card:hover{transform:translateY(-4px)}
+.card:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.card .titulo{font-size:16px;font-weight:700;line-height:1.4}
+
+.exercise{max-width:640px}
+.exercise .shell{
+    background:var(--shell-bg);
+    border:1px solid var(--card-border);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-radius:24px;
+    padding:34px 36px;
+    box-shadow:var(--shadow);
+}
+.back{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:var(--pill-bg);
+    color:var(--pill-ink);
+    border:none;
+    padding:10px 18px;
+    border-radius:999px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    margin-bottom:18px;
+}
+.back:hover{filter:brightness(0.96)}
+
+.shell h2{font-size:20px;font-weight:700;margin:0 0 4px}
+.shell h3{font-size:14px;font-weight:600;color:var(--muted);margin:22px 0 8px}
+
+label.field-label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px;font-weight:500}
+.linha{display:flex;gap:10px;flex-wrap:wrap}
+.linha > *{flex:1;min-width:130px}
+
+input{
+    padding:11px 13px;
+    width:100%;
+    box-sizing:border-box;
+    border:1px solid var(--field-border);
+    background:var(--field-bg);
+    color:var(--ink);
+    border-radius:10px;
+    font-size:14px;
+    font-family:inherit;
+    margin:4px 0;
+}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+
+button.btn{
+    padding:12px 20px;
+    border:none;
+    border-radius:999px;
+    background:linear-gradient(135deg, var(--accent-2), var(--accent));
+    color:#fff;
+    cursor:pointer;
+    margin-top:12px;
+    font-family:inherit;
+    font-weight:600;
+    font-size:14px;
+}
+button.btn:hover{filter:brightness(1.05)}
+button.btn.ghost{background:var(--pill-bg);color:var(--pill-ink)}
+button.btn.danger{background:var(--dificil-ink);padding:6px 14px;font-size:12px;margin-top:0}
+button.btn.small{padding:8px 14px;font-size:13px;margin-top:0}
+
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+th,td{border:1px solid var(--field-border);padding:8px;text-align:left}
+th{background:var(--pill-bg)}
+
+ul.lista{list-style:none;padding:0;margin-top:10px}
+ul.lista li{padding:9px 4px;border-bottom:1px solid var(--field-border);display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+.mensagem{margin-top:14px;font-weight:600;font-size:14px}
+.mensagem.erro{color:var(--dificil-ink)}
+.mensagem.sucesso{color:var(--facil-ink)}
+.badge{padding:10px 14px;border-radius:12px;font-weight:600;font-size:14px;margin-top:14px}
+.badge.ok{color:var(--facil-ink);background:var(--facil-bg)}
+.badge.bad{color:var(--dificil-ink);background:var(--dificil-bg)}
+
+.situacao.Aprovado, .situacao.aprovado{color:var(--facil-ink);font-weight:700}
+.situacao.Recuperação{color:var(--media-ink);font-weight:700}
+.situacao.Reprovado, .situacao.reprovado{color:var(--dificil-ink);font-weight:700}
+
+.contadores{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.contadores span{background:var(--pill-bg);color:var(--pill-ink);padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600}
+
+.escondido{display:none}
+.produto-linha{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--field-border)}
+
+@media (prefers-reduced-motion: reduce){
+    .screen{animation:none}
+    .card{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="blobs">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="blob b4"></div>
+    <div class="blob b5"></div>
+</div>
+
+<div id="app">
+
+    <section id="home" class="screen active">
+        <h1>Exercícios de DOM</h1>
+        <p class="subtitle">Clique em um cartaz para abrir o exercício</p>
+
+        <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="ex1" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>01 · Saudação</h2>
+            <input type="text" id="ex1-nome" placeholder="Digite seu nome">
+            <button class="btn" id="ex1-btn">Enviar</button>
+            <p class="mensagem sucesso" id="ex1-resultado"></p>
+        </div>
+    </section>
+
+    <section id="ex2" class="screen exercise">
+        <div class="shell" style="text-align:center">
+            <button class="back" data-home>← Voltar</button>
+            <h2 id="ex2-titulo">Curso de Desenvolvimento de Sistemas</h2>
+            <button class="btn" id="ex2-btn">Alterar título</button>
+        </div>
+    </section>
+
+    <section id="ex3" class="screen exercise">
+        <div class="shell" style="text-align:center">
+            <button class="back" data-home>← Voltar</button>
+            <h2>03 · Contador de cliques</h2>
+            <button class="btn" id="ex3-btn">+ Clique aqui</button>
+            <p id="ex3-cliques" style="font-size:18px;margin-top:14px">Cliques: 0</p>
+        </div>
+    </section>
+
+    <section id="ex4" class="screen exercise">
+        <div class="shell" style="text-align:center">
+            <button class="back" data-home>← Voltar</button>
+            <h2>04 · Status de atendimento</h2>
+            <p id="ex4-status" class="badge bad">Status: Atendimento fechado</p>
+            <button class="btn" id="ex4-btn">Abrir atendimento</button>
+        </div>
+    </section>
+
+    <section id="ex5" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>05 · Calculadora simples</h2>
+            <input type="text" id="ex5-produto" placeholder="Produto">
+            <input type="number" id="ex5-quantidade" placeholder="Quantidade">
+            <input type="number" id="ex5-preco" placeholder="Preço unitário (R$)">
+            <button class="btn" id="ex5-btn">Calcular</button>
+            <p class="mensagem sucesso" id="ex5-total"></p>
+        </div>
+    </section>
+
+    <section id="ex6" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>06 · Sistema de notas</h2>
+            <input type="number" id="ex6-nota1" placeholder="Nota 1" step="0.1">
+            <input type="number" id="ex6-nota2" placeholder="Nota 2" step="0.1">
+            <input type="number" id="ex6-nota3" placeholder="Nota 3" step="0.1">
+            <button class="btn" id="ex6-btn">Calcular</button>
+            <p id="ex6-resultado" style="margin-top:14px;font-size:15px"></p>
+        </div>
+    </section>
+
+    <section id="ex7" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>07 · Validação de formulário</h2>
+            <input type="text" id="ex7-nome" placeholder="Nome">
+            <input type="email" id="ex7-email" placeholder="E-mail">
+            <input type="password" id="ex7-senha" placeholder="Senha">
+            <button class="btn" id="ex7-btn">Cadastrar</button>
+            <p class="mensagem" id="ex7-mensagem"></p>
+        </div>
+    </section>
+
+    <section id="ex8" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>08 · Sistema de estoque</h2>
+            <input type="text" id="ex8-produto" placeholder="Produto">
+            <input type="number" id="ex8-disponivel" placeholder="Quantidade disponível">
+            <input type="number" id="ex8-solicitada" placeholder="Quantidade solicitada">
+            <button class="btn" id="ex8-btn">Verificar</button>
+            <p id="ex8-resultado" class="badge"></p>
+        </div>
+    </section>
+
+    <section id="ex9" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>09 · Lista de tarefas</h2>
+            <div class="linha">
+                <input type="text" id="ex9-tarefa" placeholder="Digite uma tarefa">
+                <button class="btn small" id="ex9-btn" style="flex:0 0 auto">Adicionar</button>
+            </div>
+            <h3>Minhas tarefas</h3>
+            <ul class="lista" id="ex9-lista"></ul>
+        </div>
+    </section>
+
+    <section id="ex10" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>10 · Calculadora de desconto</h2>
+            <input type="text" id="ex10-produto" placeholder="Produto">
+            <input type="number" id="ex10-preco" placeholder="Preço (R$)">
+            <input type="number" id="ex10-desconto" placeholder="Desconto (%)">
+            <button class="btn" id="ex10-btn">Calcular</button>
+            <div id="ex10-resultado" style="margin-top:14px;font-size:14px;line-height:1.7"></div>
+        </div>
+    </section>
+
+    <section id="ex11" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+
+            <div id="ex11-form">
+                <h2>11 · Login — Sistema Acadêmico</h2>
+                <input type="text" id="ex11-usuario" placeholder="Usuário">
+                <input type="password" id="ex11-senha" placeholder="Senha">
+                <button class="btn" id="ex11-btn">Entrar</button>
+                <p class="mensagem erro" id="ex11-mensagem"></p>
+            </div>
+
+            <div id="ex11-logado" class="escondido" style="text-align:center">
+                <h2 style="color:var(--facil-ink)">Bem-vindo ao sistema acadêmico!</h2>
+                <p>Login realizado com sucesso.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="ex12" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>12 · Carrinho de compras</h2>
+            <h3>Produtos disponíveis</h3>
+            <div id="ex12-produtos"></div>
+            <h3>Carrinho</h3>
+            <ul class="lista" id="ex12-carrinho"></ul>
+            <p class="mensagem sucesso" id="ex12-resumo">Itens no carrinho: 0 — Total: R$ 0.00</p>
+        </div>
+    </section>
+
+    <section id="ex13" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>13 · Cadastro de alunos</h2>
+            <input type="text" id="ex13-nome" placeholder="Nome">
+            <input type="number" id="ex13-idade" placeholder="Idade">
+            <input type="text" id="ex13-curso" placeholder="Curso">
+            <button class="btn" id="ex13-btn">Cadastrar</button>
+            <h3>Alunos cadastrados</h3>
+            <table>
+                <thead><tr><th>Nome</th><th>Idade</th><th>Curso</th><th>Ação</th></tr></thead>
+                <tbody id="ex13-tabela"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="ex14" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>14 · Dashboard de vendas</h2>
+            <input type="text" id="ex14-produto" placeholder="Produto">
+            <input type="number" id="ex14-quantidade" placeholder="Quantidade">
+            <input type="number" id="ex14-valor" placeholder="Valor unitário (R$)">
+            <button class="btn" id="ex14-btn">Adicionar venda</button>
+
+            <h3>Pesquisar produto</h3>
+            <input type="text" id="ex14-pesquisa" placeholder="Digite para filtrar...">
+
+            <h3>Vendas registradas</h3>
+            <table>
+                <thead><tr><th>Produto</th><th>Qtd.</th><th>Unit.</th><th>Total</th></tr></thead>
+                <tbody id="ex14-tabela"></tbody>
+            </table>
+
+            <div class="contadores">
+                <span id="ex14-faturamento">Faturamento: R$ 0.00</span>
+                <span id="ex14-itens">Itens vendidos: 0</span>
+                <span id="ex14-vendas">Vendas realizadas: 0</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="ex15" class="screen exercise">
+        <div class="shell">
+            <button class="back" data-home>← Voltar</button>
+            <h2>15 · Mini sistema acadêmico</h2>
+
+            <h3>Cadastro de aluno</h3>
+            <div class="linha">
+                <input type="text" id="ex15-nome" placeholder="Nome">
+                <input type="text" id="ex15-ra" placeholder="RA">
+                <input type="text" id="ex15-curso" placeholder="Curso">
+            </div>
+            <div class="linha">
+                <input type="number" id="ex15-nota1" placeholder="Nota 1" step="0.1">
+                <input type="number" id="ex15-nota2" placeholder="Nota 2" step="0.1">
+            </div>
+            <button class="btn" id="ex15-btn">Cadastrar</button>
+
+            <h3>Pesquisar aluno</h3>
+            <input type="text" id="ex15-pesquisa" placeholder="Pesquisar por nome ou RA...">
+
+            <h3>Alunos cadastrados</h3>
+            <table>
+                <thead><tr><th>Nome</th><th>RA</th><th>Curso</th><th>Média</th><th>Situação</th><th>Ação</th></tr></thead>
+                <tbody id="ex15-tabela"></tbody>
+            </table>
+
+            <div class="contadores">
+                <span id="ex15-total">Total de alunos: 0</span>
+                <span id="ex15-aprovados">Aprovados: 0</span>
+                <span id="ex15-reprovados">Reprovados: 0</span>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+const exercicios = [
+    { id: "ex1",  titulo: "Saudação",                  dificuldade: "facil"   },
+    { id: "ex2",  titulo: "Alterando o título",         dificuldade: "facil"   },
+    { id: "ex3",  titulo: "Contador de cliques",        dificuldade: "facil"   },
+    { id: "ex4",  titulo: "Status de atendimento",      dificuldade: "facil"   },
+    { id: "ex5",  titulo: "Calculadora simples",        dificuldade: "facil"   },
+    { id: "ex6",  titulo: "Sistema de notas",           dificuldade: "media"   },
+    { id: "ex7",  titulo: "Validação de formulário",    dificuldade: "media"   },
+    { id: "ex8",  titulo: "Sistema de estoque",         dificuldade: "media"   },
+    { id: "ex9",  titulo: "Lista de tarefas",           dificuldade: "media"   },
+    { id: "ex10", titulo: "Calculadora de desconto",    dificuldade: "media"   },
+    { id: "ex11", titulo: "Sistema de login",           dificuldade: "dificil" },
+    { id: "ex12", titulo: "Carrinho de compras",        dificuldade: "dificil" },
+    { id: "ex13", titulo: "Cadastro de alunos",         dificuldade: "dificil" },
+    { id: "ex14", titulo: "Dashboard de vendas",        dificuldade: "dificil" },
+    { id: "ex15", titulo: "Mini sistema acadêmico",     dificuldade: "dificil" },
+];
+
+const grid = document.querySelector("#grid");
+
+exercicios.forEach(function(ex, indice) {
+    const card = document.createElement("button");
+    card.className = "card";
+    card.innerHTML = `<span class="titulo">EXERCÍCIO ${String(indice + 1).padStart(2, "0")} - ${ex.titulo}</span>`;
+    card.addEventListener("click", function() {
+        mostrarTela(ex.id);
+    });
+    grid.appendChild(card);
+});
+
+function mostrarTela(id) {
+    document.querySelectorAll(".screen").forEach(function(tela) {
+        tela.classList.remove("active");
+    });
+    document.querySelector("#" + id).classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("[data-home]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+        mostrarTela("home");
+    });
+});
+
+(function() {
+    const nome = document.querySelector("#ex1-nome");
+    const botao = document.querySelector("#ex1-btn");
+    const resultado = document.querySelector("#ex1-resultado");
+
+    botao.addEventListener("click", function() {
+        resultado.textContent = `Olá, ${nome.value}! Seja bem-vindo!`;
+    });
+})();
+
+(function() {
+    const titulo = document.querySelector("#ex2-titulo");
+    const botao = document.querySelector("#ex2-btn");
+
+    botao.addEventListener("click", function() {
+        titulo.textContent = "Desenvolvimento de Sistemas — SENAI";
+        titulo.style.color = "#7c4dbd";
+    });
+})();
+
+(function() {
+    const botao = document.querySelector("#ex3-btn");
+    const cliquesEl = document.querySelector("#ex3-cliques");
+    let contador = 0;
+
+    botao.addEventListener("click", function() {
+        contador = contador + 1;
+        cliquesEl.textContent = `Cliques: ${contador}`;
+    });
+})();
+
+(function() {
+    const status = document.querySelector("#ex4-status");
+    const botao = document.querySelector("#ex4-btn");
+
+    botao.addEventListener("click", function() {
+        status.textContent = "Status: Atendimento aberto";
+        status.classList.remove("bad");
+        status.classList.add("ok");
+    });
+})();
+
+(function() {
+    const produto = document.querySelector("#ex5-produto");
+    const quantidade = document.querySelector("#ex5-quantidade");
+    const preco = document.querySelector("#ex5-preco");
+    const botao = document.querySelector("#ex5-btn");
+    const total = document.querySelector("#ex5-total");
+
+    botao.addEventListener("click", function() {
+        const qtd = Number(quantidade.value);
+        const valorUnitario = Number(preco.value);
+        const totalCompra = qtd * valorUnitario;
+
+        total.textContent = `${produto.value || "Produto"} — Total: R$ ${totalCompra.toFixed(2)}`;
+    });
+})();
+
+(function() {
+    const nota1 = document.querySelector("#ex6-nota1");
+    const nota2 = document.querySelector("#ex6-nota2");
+    const nota3 = document.querySelector("#ex6-nota3");
+    const botao = document.querySelector("#ex6-btn");
+    const resultado = document.querySelector("#ex6-resultado");
+
+    botao.addEventListener("click", function() {
+        const n1 = Number(nota1.value);
+        const n2 = Number(nota2.value);
+        const n3 = Number(nota3.value);
+        const media = (n1 + n2 + n3) / 3;
+
+        let situacao = media >= 6 ? "Aprovado" : "Reprovado";
+
+        resultado.innerHTML = `Média: ${media.toFixed(1)} — <span class="situacao ${situacao}">${situacao}</span>`;
+    });
+})();
+
+(function() {
+    const nome = document.querySelector("#ex7-nome");
+    const email = document.querySelector("#ex7-email");
+    const senha = document.querySelector("#ex7-senha");
+    const botao = document.querySelector("#ex7-btn");
+    const mensagem = document.querySelector("#ex7-mensagem");
+
+    botao.addEventListener("click", function() {
+        if (nome.value === "" || email.value === "" || senha.value === "") {
+            mensagem.textContent = "Preencha todos os campos.";
+            mensagem.className = "mensagem erro";
+        } else {
+            mensagem.textContent = "Cadastro realizado com sucesso!";
+            mensagem.className = "mensagem sucesso";
+        }
+    });
+})();
+
+(function() {
+    const disponivel = document.querySelector("#ex8-disponivel");
+    const solicitada = document.querySelector("#ex8-solicitada");
+    const botao = document.querySelector("#ex8-btn");
+    const resultado = document.querySelector("#ex8-resultado");
+
+    botao.addEventListener("click", function() {
+        const qtdDisponivel = Number(disponivel.value);
+        const qtdSolicitada = Number(solicitada.value);
+
+        if (qtdDisponivel >= qtdSolicitada) {
+            resultado.textContent = "Pedido disponível para separação.";
+            resultado.className = "badge ok";
+        } else {
+            resultado.textContent = "Estoque insuficiente.";
+            resultado.className = "badge bad";
+        }
+    });
+})();
+
+(function() {
+    const tarefaInput = document.querySelector("#ex9-tarefa");
+    const botao = document.querySelector("#ex9-btn");
+    const lista = document.querySelector("#ex9-lista");
+
+    botao.addEventListener("click", function() {
+        const texto = tarefaInput.value;
+        if (texto === "") return;
+
+        const item = document.createElement("li");
+        item.textContent = `☐ ${texto}`;
+        lista.appendChild(item);
+
+        tarefaInput.value = "";
+    });
+})();
+
+(function() {
+    const produto = document.querySelector("#ex10-produto");
+    const preco = document.querySelector("#ex10-preco");
+    const desconto = document.querySelector("#ex10-desconto");
+    const botao = document.querySelector("#ex10-btn");
+    const resultado = document.querySelector("#ex10-resultado");
+
+    botao.addEventListener("click", function() {
+        const valorPreco = Number(preco.value);
+        const percentualDesconto = Number(desconto.value);
+        const valorDesconto = valorPreco * (percentualDesconto / 100);
+        const precoFinal = valorPreco - valorDesconto;
+
+        resultado.innerHTML = `
+            <strong>${produto.value || "Produto"}</strong><br>
+            Preço: R$ ${valorPreco.toFixed(2)}<br>
+            Desconto (${percentualDesconto}%): R$ ${valorDesconto.toFixed(2)}<br>
+            <strong>Total: R$ ${precoFinal.toFixed(2)}</strong>
+        `;
+    });
+})();
+
+(function() {
+    const usuarioCorreto = "aluno";
+    const senhaCorreta = "1234";
+
+    const usuario = document.querySelector("#ex11-usuario");
+    const senha = document.querySelector("#ex11-senha");
+    const botao = document.querySelector("#ex11-btn");
+    const mensagem = document.querySelector("#ex11-mensagem");
+    const form = document.querySelector("#ex11-form");
+    const logado = document.querySelector("#ex11-logado");
+
+    botao.addEventListener("click", function() {
+        if (usuario.value === usuarioCorreto && senha.value === senhaCorreta) {
+            form.classList.add("escondido");
+            logado.classList.remove("escondido");
+        } else {
+            mensagem.textContent = "Usuário ou senha inválidos.";
+        }
+    });
+})();
+
+(function() {
+    const produtos = [
+        { nome: "Notebook", preco: 3500 },
+        { nome: "Mouse", preco: 80 },
+        { nome: "Teclado", preco: 150 }
+    ];
+
+    const listaProdutos = document.querySelector("#ex12-produtos");
+    const carrinhoEl = document.querySelector("#ex12-carrinho");
+    const resumo = document.querySelector("#ex12-resumo");
+
+    let carrinho = [];
+
+    produtos.forEach(function(produto) {
+        const linha = document.createElement("div");
+        linha.className = "produto-linha";
+        linha.innerHTML = `<span>${produto.nome} — R$ ${produto.preco.toFixed(2)}</span>`;
+
+        const botaoAdicionar = document.createElement("button");
+        botaoAdicionar.className = "btn small";
+        botaoAdicionar.textContent = "Adicionar";
+        botaoAdicionar.addEventListener("click", function() {
+            carrinho.push(produto);
+            atualizarCarrinho();
+        });
+
+        linha.appendChild(botaoAdicionar);
+        listaProdutos.appendChild(linha);
+    });
+
+    function atualizarCarrinho() {
+        carrinhoEl.innerHTML = "";
+        let total = 0;
+
+        carrinho.forEach(function(item, indice) {
+            total += item.preco;
+
+            const li = document.createElement("li");
+            li.innerHTML = `<span>${item.nome} — R$ ${item.preco.toFixed(2)}</span>`;
+
+            const botaoRemover = document.createElement("button");
+            botaoRemover.className = "btn danger";
+            botaoRemover.textContent = "Remover";
+            botaoRemover.addEventListener("click", function() {
+                carrinho.splice(indice, 1);
+                atualizarCarrinho();
+            });
+
+            li.appendChild(botaoRemover);
+            carrinhoEl.appendChild(li);
+        });
+
+        resumo.textContent = `Itens no carrinho: ${carrinho.length} — Total: R$ ${total.toFixed(2)}`;
+    }
+})();
+
+(function() {
+    const nome = document.querySelector("#ex13-nome");
+    const idade = document.querySelector("#ex13-idade");
+    const curso = document.querySelector("#ex13-curso");
+    const botao = document.querySelector("#ex13-btn");
+    const tabela = document.querySelector("#ex13-tabela");
+
+    botao.addEventListener("click", function() {
+        if (nome.value === "" || idade.value === "" || curso.value === "") return;
+
+        const linha = document.createElement("tr");
+        linha.innerHTML = `<td>${nome.value}</td><td>${idade.value}</td><td>${curso.value}</td><td></td>`;
+
+        const botaoExcluir = document.createElement("button");
+        botaoExcluir.className = "btn danger";
+        botaoExcluir.textContent = "Excluir";
+        botaoExcluir.addEventListener("click", function() { linha.remove(); });
+
+        linha.querySelector("td:last-child").appendChild(botaoExcluir);
+        tabela.appendChild(linha);
+
+        nome.value = ""; idade.value = ""; curso.value = "";
+    });
+})();
+
+(function() {
+    const produtoInput = document.querySelector("#ex14-produto");
+    const quantidadeInput = document.querySelector("#ex14-quantidade");
+    const valorInput = document.querySelector("#ex14-valor");
+    const botao = document.querySelector("#ex14-btn");
+    const tabela = document.querySelector("#ex14-tabela");
+    const pesquisa = document.querySelector("#ex14-pesquisa");
+
+    const faturamentoEl = document.querySelector("#ex14-faturamento");
+    const itensEl = document.querySelector("#ex14-itens");
+    const vendasEl = document.querySelector("#ex14-vendas");
+
+    let vendas = [];
+
+    botao.addEventListener("click", function() {
+        const produto = produtoInput.value;
+        const quantidade = Number(quantidadeInput.value);
+        const valorUnitario = Number(valorInput.value);
+
+        if (produto === "" || quantidade <= 0 || valorUnitario <= 0) return;
+
+        const totalVenda = quantidade * valorUnitario;
+        vendas.push({ produto, quantidade, valorUnitario, totalVenda });
+
+        produtoInput.value = ""; quantidadeInput.value = ""; valorInput.value = "";
+
+        renderizarTabela(vendas);
+        atualizarContadores();
+    });
+
+    pesquisa.addEventListener("input", function() {
+        const termo = pesquisa.value.toLowerCase();
+        renderizarTabela(vendas.filter(function(v) { return v.produto.toLowerCase().includes(termo); }));
+    });
+
+    function renderizarTabela(lista) {
+        tabela.innerHTML = "";
+        lista.forEach(function(venda) {
+            const linha = document.createElement("tr");
+            linha.innerHTML = `
+                <td>${venda.produto}</td>
+                <td>${venda.quantidade}</td>
+                <td>R$ ${venda.valorUnitario.toFixed(2)}</td>
+                <td>R$ ${venda.totalVenda.toFixed(2)}</td>
+            `;
+            tabela.appendChild(linha);
+        });
+    }
+
+    function atualizarContadores() {
+        let faturamentoTotal = 0, itensTotais = 0;
+        vendas.forEach(function(v) { faturamentoTotal += v.totalVenda; itensTotais += v.quantidade; });
+
+        faturamentoEl.textContent = `Faturamento: R$ ${faturamentoTotal.toFixed(2)}`;
+        itensEl.textContent = `Itens vendidos: ${itensTotais}`;
+        vendasEl.textContent = `Vendas realizadas: ${vendas.length}`;
+    }
+})();
+
+(function() {
+    const nomeInput = document.querySelector("#ex15-nome");
+    const raInput = document.querySelector("#ex15-ra");
+    const cursoInput = document.querySelector("#ex15-curso");
+    const nota1Input = document.querySelector("#ex15-nota1");
+    const nota2Input = document.querySelector("#ex15-nota2");
+    const botao = document.querySelector("#ex15-btn");
+    const tabela = document.querySelector("#ex15-tabela");
+    const pesquisa = document.querySelector("#ex15-pesquisa");
+
+    const totalAlunosEl = document.querySelector("#ex15-total");
+    const totalAprovadosEl = document.querySelector("#ex15-aprovados");
+    const totalReprovadosEl = document.querySelector("#ex15-reprovados");
+
+    let alunos = [];
+
+    botao.addEventListener("click", function() {
+        const nome = nomeInput.value, ra = raInput.value, curso = cursoInput.value;
+        const nota1 = Number(nota1Input.value), nota2 = Number(nota2Input.value);
+
+        if (nome === "" || ra === "" || curso === "") return;
+
+        const media = (nota1 + nota2) / 2;
+        let situacao;
+        if (media >= 6) situacao = "Aprovado";
+        else if (media >= 4) situacao = "Recuperação";
+        else situacao = "Reprovado";
+
+        alunos.push({ nome, ra, curso, media, situacao });
+
+        nomeInput.value = ""; raInput.value = ""; cursoInput.value = "";
+        nota1Input.value = ""; nota2Input.value = "";
+
+        renderizarTabela(alunos);
+        atualizarContadores();
+    });
+
+    pesquisa.addEventListener("input", function() {
+        const termo = pesquisa.value.toLowerCase();
+        renderizarTabela(alunos.filter(function(a) {
+            return a.nome.toLowerCase().includes(termo) || a.ra.toLowerCase().includes(termo);
+        }));
+    });
+
+    function renderizarTabela(lista) {
+        tabela.innerHTML = "";
+        lista.forEach(function(aluno) {
+            const linha = document.createElement("tr");
+            linha.innerHTML = `
+                <td>${aluno.nome}</td>
+                <td>${aluno.ra}</td>
+                <td>${aluno.curso}</td>
+                <td>${aluno.media.toFixed(1)}</td>
+                <td class="situacao ${aluno.situacao}">${aluno.situacao}</td>
+                <td></td>
+            `;
+
+            const botaoExcluir = document.createElement("button");
+            botaoExcluir.className = "btn danger";
+            botaoExcluir.textContent = "Excluir";
+            botaoExcluir.addEventListener("click", function() {
+                alunos = alunos.filter(function(a) { return a.ra !== aluno.ra; });
+                renderizarTabela(alunos);
+                atualizarContadores();
+            });
+
+            linha.querySelector("td:last-child").appendChild(botaoExcluir);
+            tabela.appendChild(linha);
+        });
+    }
+
+    function atualizarContadores() {
+        const aprovados = alunos.filter(function(a) { return a.situacao === "Aprovado"; }).length;
+        const reprovados = alunos.filter(function(a) { return a.situacao === "Reprovado"; }).length;
+
+        totalAlunosEl.textContent = `Total de alunos: ${alunos.length}`;
+        totalAprovadosEl.textContent = `Aprovados: ${aprovados}`;
+        totalReprovadosEl.textContent = `Reprovados: ${reprovados}`;
+    }
+})();
+</script>
+</body>
+</html>

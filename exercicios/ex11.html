@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Exercício 11 — Sistema de login</title>
+<style>
+body{font-family:Arial, sans-serif;background:#f4f4f4;padding:40px;color:#333}
+main{background:#fff;max-width:450px;margin:auto;padding:30px 35px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+h1{font-size:20px}
+input{padding:9px;margin:6px 0;width:100%;box-sizing:border-box;border:1px solid #ccc;border-radius:6px;font-size:14px}
+button{padding:10px 18px;border:none;border-radius:6px;background:#2d6cdf;color:#fff;cursor:pointer;margin-top:10px}
+button:hover{background:#1f4fb0}
+#mensagem{margin-top:12px;font-weight:bold}
+.erro{color:#c0392b}
+.escondido{display:none}
+#areaLogada{text-align:center}
+#areaLogada h2{color:#1e8449}
+</style>
+</head>
+<body>
+<main>
+    <div id="areaFormulario">
+        <h1>Login — Sistema Acadêmico</h1>
+
+        <input type="text" id="usuario" placeholder="Usuário">
+        <input type="password" id="senha" placeholder="Senha">
+
+        <button id="btnEntrar">Entrar</button>
+
+        <p id="mensagem"></p>
+    </div>
+
+    <div id="areaLogada" class="escondido">
+        <h2>Bem-vindo ao sistema acadêmico!</h2>
+        <p>Login realizado com sucesso.</p>
+    </div>
+</main>
+
+<script>
+    const usuarioCorreto = "aluno";
+    const senhaCorreta = "1234";
+
+    const usuario = document.querySelector("#usuario");
+    const senha = document.querySelector("#senha");
+    const botao = document.querySelector("#btnEntrar");
+    const mensagem = document.querySelector("#mensagem");
+    const areaFormulario = document.querySelector("#areaFormulario");
+    const areaLogada = document.querySelector("#areaLogada");
+
+    botao.addEventListener("click", function() {
+        if (usuario.value === usuarioCorreto && senha.value === senhaCorreta) {
+            areaFormulario.classList.add("escondido");
+            areaLogada.classList.remove("escondido");
+        } else {
+            mensagem.textContent = "Usuário ou senha inválidos.";
+            mensagem.className = "erro";
+        }
+    });
+</script>
+</body>
+</html>
